@@ -1,0 +1,9 @@
+1.)Core NLP Processing
+2.)KL divergence threshold
+	a.) Remove stop words 
+	b.) run KL divergence on training data w/o stop words
+	c.) Run KL divergence on all training data, gather min. max, and average for information dense & non-information dense
+4.)Get threshold of KL divergence
+5.) Trigram model
+Syntactic Parser → Elliot
+
