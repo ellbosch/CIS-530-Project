@@ -3,16 +3,17 @@ import xml.etree.ElementTree as ET
 
 eperkoff_stanfordCoreNLP_Directory_Path = "/home1/c/cis530/hw3/corenlp/stanford-corenlp-2012-07-09"
 eperkoff_train_files_path = "/home1/c/cis530/project/train_data"
-eperkoff_processed_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed-train-files"
-eperkoff_train_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/file_list.txt
+eperkoff_processed_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_train_files"
+eperkoff_train_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/file_list.txt"
 
 #returns a dict of all the direct children of a directory where the child's name is the key and the exact path is the value
-def get_all_files(directory):
-	fileNames = {}
+def get_all_files(directory, fileNames):
 	for fName in os.listdir(directory):
 		fPath = directory + "/" + fName
 		if (os.path.isdir(fPath)):
-			fileNames[fName] = fPath
+			fileNames+= get_all_files(fPath, fileNames)
+		else:
+			fileNames.append(fPath)			
 	return fileNames
 
 #creates a file with a list of all the file names to send to coreNLP 
@@ -24,7 +25,7 @@ def write_list_to_file(file_list, outfile):
 
 #makes a system call to coreNLP on the file_list.txt and stores the output in the corenlp_output_dir which contains the coreNLP annotations for files listed in file_list.txt
 def preprocess(file_list, corenlp_output_dir):
-	command_call_string = "cd " + eperkoff_stanfordCoreNLP_Directory_Path + " && " + " java -cp stanford-corenlp-2012-07-09.jar:stanford-corenlp-2012-07-06-models.jar:xom.jar: joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -annotators tokenize,ssplit,pos,lemma,ner -filelist " + file_list +" -outputDirectory " + corenlp_output_dir
+	command_call_string = "cd " + eperkoff_stanfordCoreNLP_Directory_Path + " && " + " java -cp stanford-corenlp-2012-07-09.jar:stanford-corenlp-2012-07-06-models.jar:xom.jar:joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -annotators tokenize,ssplit,pos,lemma,ner -filelist " + file_list +" -outputDirectory " + corenlp_output_dir
 	os.system(command_call_string)
 
 
@@ -72,9 +73,10 @@ def process_file(input_xml, output_file):
 
 ##############RUN THINGS HERE############
 #Preprocessing for CoreNLP
-file_list = get_all_files(eperkoff_train_files_path)
-write_list_to_file(file_list)
-preprocess(eperkoff_train_files_path, eperkoff_processed_files_path)
+file_list = get_all_files(eperkoff_train_files_path, [])
+print file_list
+write_list_to_file(file_list, eperkoff_train_file_list)
+preprocess(eperkoff_train_file_list, eperkoff_processed_files_path)
 print "Done preprocessing with CoreNLP"
 
 
