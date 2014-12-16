@@ -1,6 +1,6 @@
 #Creates a trigram model for the corpus using the SRILM trigram format
 import os
-from preprocessing import *
+from preprocessing_files import *
 
 eperkoff_SRILM_executable_path = "/home1/c/cis530/hw2/srilm/"
 
