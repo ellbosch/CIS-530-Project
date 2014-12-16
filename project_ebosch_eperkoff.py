@@ -66,9 +66,11 @@ def extract_top_words(xml_dir):
 	return sorted(words_dict.keys(), key=lambda x: words_dict[x], reverse=True)[:2000]
 
 #creates unigram model over corpus
-def map_unigrams_corpus(xml_dir):
+def map_unigrams_corpus(xml_dir, top_words):
 	words_dict, total_count = extract_frequencies(xml_dir)
-	return {word: float(freq) / total_count for word, freq in words_dict.items()}
+	freq = {word: float(freq) / total_count for word, freq in words_dict.items()}
+	return [freq[word] for word in top_words]
+
 
 #creates vector in feature space of top_words, to be used for map_expanded_unigrams()
 def map_unigrams(xml_filename, top_words):
@@ -153,12 +155,16 @@ def map_expanded_unigrams_dir(xml_dir, top_words, similarity_matrix):
 
 
 def calculate_kl_divergence(corpus_unigram, file_unigram):
-	kl_sum = 0
+	kl_sum = 0.0
 
 	for i in range(len(corpus_unigram)):
 		q = corpus_unigram[i]
 		p = file_unigram[i]
-		# kl_sum += p * 
+
+		if p != 0:
+			kl_sum += p * math.log(float(p) / q)
+
+	return kl_sum
 
 
 
