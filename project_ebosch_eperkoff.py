@@ -149,11 +149,6 @@ def map_expanded_unigrams(xml_file, top_words, similarity_matrix):
 
 	return unigram_vector
 
-# creates expanded unigrams over files in entire directory
-def map_expanded_unigrams_dir(xml_dir, top_words, similarity_matrix):
-	files = os.listdir(xml_dir)
-
-
 def calculate_kl_divergence(corpus_unigram, file_unigram):
 	kl_sum = 0.0
 
@@ -165,8 +160,6 @@ def calculate_kl_divergence(corpus_unigram, file_unigram):
 			kl_sum += p * math.log(float(p) / q)
 
 	return kl_sum
-
-
 
 #gets the processed xml files corresponding to the non_dense and dense_files
 def get_processed_file_lists(non_dense_files, dense_files):
