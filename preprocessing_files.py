@@ -5,6 +5,9 @@ eperkoff_stanfordCoreNLP_Directory_Path = "/home1/c/cis530/hw3/corenlp/stanford-
 eperkoff_train_files_path = "/home1/c/cis530/project/train_data"
 eperkoff_processed_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_train_files"
 eperkoff_train_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/file_list.txt"
+eperkoff_test_data_path = "/home1/c/cis530/project/test_data"
+eperkoff_test_data_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/test_file_list.txt"
+eperkoff_processed_test_data = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_test_files"
 
 #returns a dict of all the direct children of a directory where the child's name is the key and the exact path is the value
 def get_all_files(directory, fileNames):
@@ -73,10 +76,21 @@ def process_file(input_xml, output_file):
 
 ##############RUN THINGS HERE############
 #Preprocessing for CoreNLP
+'''
+#PROCESSING OF TRAIN FILES
 file_list = get_all_files(eperkoff_train_files_path, [])
 print file_list
 write_list_to_file(file_list, eperkoff_train_file_list)
 preprocess(eperkoff_train_file_list, eperkoff_processed_files_path)
 print "Done preprocessing with CoreNLP"
+
+#Preprocessing for CoreNLP OF TEST FILES
+test_file_list = get_all_files(eperkoff_test_data_path, [])
+print test_file_list
+write_list_to_file(test_file_list, eperkoff_test_data_file_list)
+preprocess(eperkoff_test_data_file_list, eperkoff_processed_test_data)
+
+
+'''
 
 
