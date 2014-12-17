@@ -2,7 +2,13 @@
 from preprocessing_files import *
 from ngram_model import *
 
-train_labels_path = "/home1/c/cis530/project/train_labels"
+
+train_labels_path = "/home1/c/cis530/project/train_labels.txt"
+eperkoff_merged_dense_train_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/merged_dense_train_files.txt"
+eperkoff_merged_non_dense_train_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/merged_non_dense_train_files.txt"
+eperkoff_non_dense_trigram_model = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/non_dense_trigram_model.srilm"
+eperkoff_dense_trigram_model = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/dense_trigram_model.srilm"
+
 
 #Calculate the KL divergence threshold for articles in the training data
 
@@ -13,34 +19,39 @@ def read_train_labels(file_path):
 	open_train = open(file_path, 'r')
 	for line in open_train:
 		split = line.split(' ')
-		if len(split > 1):
+		if len(split) > 1:
 			file_name = split[0]
 			label = split[1]
-			if label == 0:
-				not_dense_filenames.append(file_name)
-			else:
+			if label == '1':
 				dense_filenames.append(file_name)
+				print label + " dense"
+			else:
+				print label + " not dense"
+				not_dense_filenames.append(file_name)
+				
 	open_train.close()
 	return (not_dense_filenames, dense_filenames)
 
 def map_expanded_unigrams(xml_file, top_words, similarity_matrix):
 	#TODO: Elliot's code goes here
-
+	return []
 def calculate_kl_divergence(corpus_unigram, file_unigram):
 	#TODO: Elliot's code goes here
+	return []
 
 def get_corpus_unigrams():
 	#TODO: should give us the unigram for the corpus based on the normalized frequencies of the list of 2000 top words
+	return []
 
 #gets the processed xml files corresponding to the non_dense and dense_files
 def get_processed_file_lists(non_dense_files, dense_files):
 	clean_non_dense_files = []
 	clean_dense_files = []
 	for non_dense in non_dense_files:
-		clean_xml = non_dense + '.xml'
+		clean_xml = eperkoff_processed_train_files_as_text_path + '/' + non_dense.replace('.txt', '_clean.txt')
 		clean_non_dense_files.append(clean_xml)
 	for dense in dense_files:
-		clean_xml = dense + '.xml'
+		clean_xml = eperkoff_processed_train_files_as_text_path + '/' + dense.replace('.txt', '_clean.txt')
 		clean_dense_files.append(clean_xml)
 	return (clean_non_dense_files, clean_dense_files)
 
@@ -51,7 +62,7 @@ def calculate_kl_divergence_stats(file_names, corpus_unigram):
 	for fname in file_names:
 		#TODO: figure out how to incorporate top_words & similarity matrix here
 		file_unigram = map_expanded_unigrams(fname, top_words, similarity_matrix)
-		kl = calculate(kl_divergence(corpus_unigram, file_unigram)
+		kl = calculate_kl_divergence(corpus_unigram, file_unigram)
 		kl_list.append(kl)
 		sum += kl
 	min_kl = min(kl_list)
@@ -77,13 +88,30 @@ def sort_out_of_range_kl_values(test_files, corpus_unigram, threshold):
 
 		
 #THINGS TO RUN GO HERE#
+'''
+#ALL TRIGRAM MODELS MADE 
 #generate lists of labels
 label_lists = read_train_labels(train_labels_path)
+print "Done reading the training labels"
 #getting the xml files
 actual_label_lists = get_processed_file_lists(label_lists[0], label_lists[1])
 non_dense_files = actual_label_lists[0]
+#print non_dense_files
 dense_files = actual_label_lists[1]
+#print dense_files
 
+	
+#preparing files to be sent to srilm to make the trigram model
+process_files_for_srilm(dense_files, eperkoff_merged_dense_train_files_path)
+print "Processed dense files for srilm"
+generate_srilm_trigram_model(eperkoff_merged_dense_train_files_path, eperkoff_dense_trigram_model)
+print "Made dense trigram model"
+process_files_for_srilm(non_dense_files, eperkoff_merged_non_dense_train_files_path)
+print "Processed non dense files for srilm"
+generate_srilm_trigram_model(eperkoff_merged_non_dense_train_files_path, eperkoff_non_dense_trigram_model)
+print "Made non dense trigram model"
+
+'''
 #generate the corpus unigram
 corpus_unigram = get_corpus_unigrams()
 
@@ -97,8 +125,6 @@ threshold = 10
 #get a list of all the processed test files' names
 test_file_list = get_all_files(eperkoff_processed_test_data, [])
 sorted_kl_value_lists = sort_out_of_range_kl_values(test_file_list, corpus_unigram, threshold)
-		
-		
 	
-	
+
 

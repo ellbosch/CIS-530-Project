@@ -1,10 +1,12 @@
 import os
-import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
+import re
 
 eperkoff_stanfordCoreNLP_Directory_Path = "/home1/c/cis530/hw3/corenlp/stanford-corenlp-2012-07-09"
 eperkoff_train_files_path = "/home1/c/cis530/project/train_data"
 eperkoff_processed_files_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_train_files"
 eperkoff_train_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/file_list.txt"
+eperkoff_processed_train_files_as_text_path = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_train_text_files"
 eperkoff_test_data_path = "/home1/c/cis530/project/test_data"
 eperkoff_test_data_file_list = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/test_file_list.txt"
 eperkoff_processed_test_data = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/processed_test_files"
@@ -34,9 +36,10 @@ def preprocess(file_list, corenlp_output_dir):
 
 #takes in a coreNLP annotated sentence and returns the sentence in string form without punctuation, with the named entities replaced by their tags and with the ends marked with the word STOP
 def process_sentence(annotated_sentence):
-	soup_sentence = BeautifulSoup(annotated_sentence, "xml")
+	#print annotated_sentence
+	#soup_sentence = BeautifulSoup(annotated_sentence, "xml")
 	token_tag = 'token'
-	token_list = soup_sentence.find_all(token_tag)
+	token_list = annotated_sentence.find_all(token_tag)
 	NER_list = []
 	sent_string = ""
 	for token in token_list:
@@ -67,7 +70,9 @@ def process_file(input_xml, output_file):
 	f = open(output_file, 'w')
 	f.write('STOP')
 	for sentence in sentence_list:
-		f.write(process_sentence(sentence))
+		clean_sentence = process_sentence(sentence)
+		non_ascii_string = ''.join([x for x in clean_sentence if ord(x) < 128])
+		f.write(non_ascii_string)
 	f.close()
 
 
@@ -92,5 +97,10 @@ preprocess(eperkoff_test_data_file_list, eperkoff_processed_test_data)
 
 
 '''
-
+#Preprocessing all train xml files into .txt files 
+for f in os.listdir(eperkoff_processed_files_path):
+	new_fname = eperkoff_processed_train_files_as_text_path + '/' + f.replace('.txt.xml', '_clean.txt')
+	process_file(eperkoff_processed_files_path + '/' + f, new_fname)
+print "Done preprocessing all train xml files into .txt files"
+	
 
