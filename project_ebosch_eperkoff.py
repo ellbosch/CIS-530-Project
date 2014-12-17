@@ -80,12 +80,14 @@ def sort_out_of_range_kl_values(test_files, corpus_unigram, top_words, similarit
 			under_kl.append(fname)
 		else:
 			over_kl.append(fname)
+	print "Under_kl = " + str(under_kl[:5])
+	print "Over_kl = " + str(over_kl[:5])
 	return (under_kl, over_kl)
 
 
 def label_files(test_files, corpus_unigram, top_words, similarity_matrix, threshold):
 	under_kl, over_kl = sort_out_of_range_kl_values(test_files, corpus_unigram, top_words, similarity_matrix, threshold)
-	return under_kl, over_kl
+	return (under_kl, over_kl)
 
 def write_labels_to_file(dense_files, non_dense_files, output_file):
 	of = open(output_file, 'w')
@@ -148,7 +150,7 @@ threshold = 9319.187375587724
 test_files = get_all_files(eperkoff_processed_test_data, [])
 predicted_labels = label_files(test_files, corpus_unigram, top_words, similarity_matrix, threshold)
 print "Generated predicted_labels"
-predicted_non_dense = predicted_lables[0]
+predicted_non_dense = predicted_labels[0]
 predicted_dense = predicted_labels[1]
 write_labels_to_file(predicted_dense, predicted_non_dense, test_output_file)
 print "Wrote all labels to file"
