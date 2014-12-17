@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import collections
 import itertools
 import math
+import os
 
 STOP_WORDS = []
 W2V_VEC = {}
@@ -80,8 +81,9 @@ def extract_similarity(top_words):
 		'''  ************************************
 		CHANGE THE PATH BELOW TO ENIAC BEFORE SUBMISSION!!
 		****************************************'''
-		# w2v = open('/project/cis/nlp/tools/word2vec/vectors.txt', 'r')
-		w2v = open('vectors.txt', 'r')
+	
+		w2v = open('/project/cis/nlp/tools/word2vec/vectors.txt', 'r')
+		#w2v = open('vectors.txt', 'r')
 
 		vectors = itertools.islice(w2v, 1, None)
 		for line in vectors:
@@ -116,8 +118,8 @@ def extract_similarity(top_words):
 
 def map_expanded_unigrams(xml_file, top_words, similarity_matrix):
 	unigram_vector = map_unigrams(xml_file, top_words)
-	words_nonzero = [top_words[i] for i in range(len(top_words))
-					 if unigram_vector[i] == 1]
+	#words_nonzero = [top_words[i] for i in range(len(top_words))
+					 #if unigram_vector[i] == 1]
 	
 	for i in range(len(top_words)):
 		if unigram_vector[i] == 0 and top_words[i] in similarity_matrix.keys():

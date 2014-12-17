@@ -97,10 +97,11 @@ preprocess(eperkoff_test_data_file_list, eperkoff_processed_test_data)
 
 
 '''
+'''
 #Preprocessing all train xml files into .txt files 
 for f in os.listdir(eperkoff_processed_files_path):
 	new_fname = eperkoff_processed_train_files_as_text_path + '/' + f.replace('.txt.xml', '_clean.txt')
 	process_file(eperkoff_processed_files_path + '/' + f, new_fname)
 print "Done preprocessing all train xml files into .txt files"
-	
+	'''
 
