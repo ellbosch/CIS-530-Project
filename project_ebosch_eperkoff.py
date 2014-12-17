@@ -16,7 +16,8 @@ non_dense_filenames = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/non_dens
 top_words_file = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/top_words.txt"
 corpus_unigram_file = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/corpus_unigram.txt"
 similarity_matrix_file = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/similarity_matrix.txt"
-test_output_file = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/text.txt"
+test_output_file = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/test.txt"
+eperkoff_dense_files_dir = "/home1/e/eperkoff/CIS530/project/CIS-530-Project/dense_files_dir"
 
 #Calculate the KL divergence threshold for articles in the training data
 
@@ -60,7 +61,6 @@ def calculate_kl_divergence_stats(file_names, corpus_unigram, top_words, similar
 		kl = calculate_kl_divergence(corpus_unigram, file_unigram)
 		kl_list.append(kl)
 		sum += kl
-	print kl_list
 	min_kl = min(kl_list)
 	max_kl = max(kl_list)
 	avg_kl = sum/(len(kl_list))
@@ -73,36 +73,75 @@ def sort_out_of_range_kl_values(test_files, corpus_unigram, top_words, similarit
 	#list of files who have a kl value higher than the theshold
 	over_kl = []
 	for fname in test_files:
-		#TODO: figure out how to incorporate top_words and similarity matrix here
 		file_unigram = map_expanded_unigrams(fname, top_words, similarity_matrix)
 		kl = calculate_kl_divergence(corpus_unigram, file_unigram)
 		if (kl < threshold):
 			under_kl.append(fname)
 		else:
 			over_kl.append(fname)
-	print "Under_kl = " + str(under_kl[:5])
-	print "Over_kl = " + str(over_kl[:5])
+	print "Dense before trigram = " + str(len(under_kl))
+	print "Nondense before trigram = " + str(len(over_kl))
 	return (under_kl, over_kl)
 
 
 def label_files(test_files, corpus_unigram, top_words, similarity_matrix, threshold):
 	under_kl, over_kl = sort_out_of_range_kl_values(test_files, corpus_unigram, top_words, similarity_matrix, threshold)
-	return (under_kl, over_kl)
+	non_dense = over_kl
+	dense = []
+	for fname in under_kl:
+		prob_non_dense = get_probability_of_article(fname, eperkoff_non_dense_trigram_model)
+		prob_dense = get_probability_of_article(fname, eperkoff_dense_trigram_model)
+		if prob_non_dense > prob_dense:
+			non_dense.append(fname)
+		else:
+			dense.append(fname)
+	print "Dense after trigram= " + str(len(dense))
+	print "Nondense after trigram= " + str(len(non_dense))
+	return (non_dense, dense)
 
-def write_labels_to_file(dense_files, non_dense_files, output_file):
+def label_files_trigram_first(test_files, corpus_unigram, top_words, similarity_matrix, threshold):
+	dense = []
+	non_dense = []
+	count_high_non_dense = 0
+	count_high_dense = 0
+	for fname in test_files:
+		prob_non_dense = get_probability_of_article(fname, eperkoff_non_dense_trigram_model)
+		prob_dense = get_probability_of_article(fname, eperkoff_dense_trigram_model)
+		if prob_non_dense > prob_dense:
+			non_dense.append(fname)
+			count_high_non_dense +=1
+		else:
+			count_high_dense +=1
+			file_unigram = map_expanded_unigrams(fname, top_words, similarity_matrix)
+			kl = calculate_kl_divergence(corpus_unigram, file_unigram)
+			if (kl < threshold):
+				dense.append(fname)
+			else:
+				non_dense.append(fname)
+	print "High probability of non-dense : " + str(count_high_non_dense)
+	print "High probability of dense : " + str(count_high_dense)
+	print "Number of dense files = " + str(len(dense))
+	print "Number of non-dense files = " + str(len(non_dense))
+	return (non_dense, dense)
+
+
+def write_labels_to_file(non_dense_files, dense_files, output_file):
 	of = open(output_file, 'w')
 	for df in dense_files:
-		fname = df.replace(eperkoff_processed_files_path + '/', '').replace('.xml', '')
+		fname = df.replace(eperkoff_processed_test_data + '/', '').replace('.xml', '')
 		of.write(fname + ' 1 \n')
 	for ndf in non_dense_files:
-		fname = ndf.replace(eperkoff_processed_files_path + '/', '').replace('.xml', '')
+		fname = ndf.replace(eperkoff_processed_test_data + '/', '').replace('.xml', '')
 		of.write(fname + ' -1 \n')
 	of.close()
+
+
 
 #THINGS TO RUN GO HERE#
 df = open(dense_filenames, 'r')
 dense_file_names = [line.replace('\n', '')  for line in df]
 df.close()
+
 ndf = open(non_dense_filenames, 'r')
 non_dense_file_names = [line.replace('\n', '')  for line in ndf]
 ndf.close()
@@ -136,26 +175,37 @@ print "Read similarity matrix"
 print "Read everything in from all files"
 
 
+
 #dense_stats = calculate_kl_divergence_stats(dense_file_names, corpus_unigram, top_words, similarity_matrix)
 #print "Dense stats " + str(dense_stats) # [9270.203727004502, 9665.161967964274, 9348.089721787068]
+#Dense stats With 500: [21.299993567723927, 416.26011623558463, 131.68439360199238]
+#Dense stats with 100:  [0.0, 152.96692451543237, 54.131074485557946]
+#Dense stats with 50: [0.0, 99.88396207209955, 34.70559224016129]
+#With 10 words:  [0.0, 42.51331714455911, 11.592345762291863]
+# [0.0, 46.387984384514326, 11.384570932477654]
+
+
 
 
 #non_dense_stats = calculate_kl_divergence_stats(non_dense_file_names, corpus_unigram, top_words, similarity_matrix)
 #print "Non-dense stats " + str(non_dense_stats) #[9245.28769357885, 9538.31354291483, 9319.187375587724]
+# With 500: [5.812127543091245, 242.92532069780748, 93.13380797903638]
+#Non-Dense stats with 100:  [0.0, 128.06780000980535, 36.441087271071936]
+#Non Dense stats with 50: [0.0, 91.73330048858023, 24.105637764702532]
+#With 10 words: [0.0, 36.68633624476288, 7.885628591399675]
+#[0.0, 35.24578247088941, 6.9662633286377185]
+
 
 
 #set the threshold for kl divergence values here
-threshold = 9319.187375587724
+threshold = 11.384570932477654
 
 test_files = get_all_files(eperkoff_processed_test_data, [])
-predicted_labels = label_files(test_files, corpus_unigram, top_words, similarity_matrix, threshold)
+predicted_labels = label_files_trigram_first(test_files, corpus_unigram, top_words, similarity_matrix, threshold)
+
 print "Generated predicted_labels"
 predicted_non_dense = predicted_labels[0]
 predicted_dense = predicted_labels[1]
-write_labels_to_file(predicted_dense, predicted_non_dense, test_output_file)
+write_labels_to_file(predicted_non_dense, predicted_dense, test_output_file)
 print "Wrote all labels to file"
-'''
-#get a list of all the processed test files' names
-test_file_list = get_all_files(eperkoff_processed_test_data, [])
-sorted_kl_value_lists = sort_out_of_range_kl_values(test_file_list, corpus_unigram, threshold)
-'''
+

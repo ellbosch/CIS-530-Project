@@ -15,6 +15,14 @@ df = open(dense_filenames, 'w')
 for d in dense_files:
 	df.write(d + '\n')
 df.close()
+
+for df in dense_file_names:
+	call_string = 'cd '+eperkoff_dense_files_dir + ' && cp ' + df +' ' +df.replace(eperkoff_processed_files_path+'/', '')
+	os.system(call_string)
+	print "Copied " + df.replace(eperkoff_processed_files_path, '')
+print "DONE"
+
+
 print "Made dense file names file"
 ndf = open(non_dense_filenames, 'w')
 for nd in non_dense_files:
@@ -55,3 +63,24 @@ smf.close()
 print "Made similarity matrix"
 
 '''
+
+
+top_words = extract_top_words(eperkoff_dense_files_dir)
+twf = open(top_words_file, 'w')
+for tw in top_words:
+	twf.write(tw + '\n')
+twf.close()
+print "Made top words file"
+print top_words
+
+corpus_unigram = map_unigrams_corpus(eperkoff_dense_files_dir, top_words)
+cuf = open(corpus_unigram_file, 'w')
+cuf.write(str(corpus_unigram))
+cuf.close()
+
+similarity_matrix = extract_similarity(top_words)
+smf = open(similarity_matrix_file, 'w')
+smf.write(str(similarity_matrix))
+smf.close()
+print "Made similarity matrix"
+

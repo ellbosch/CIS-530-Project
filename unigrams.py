@@ -41,7 +41,7 @@ def extract_frequencies(xml_directory):
 #extracts top words of xml files from directory
 def extract_top_words(xml_dir):
 	words_dict, _ = extract_frequencies(xml_dir)
-	return sorted(words_dict.keys(), key=lambda x: words_dict[x], reverse=True)[:2000]
+	return sorted(words_dict.keys(), key=lambda x: words_dict[x], reverse=True)[:10]
 
 #creates unigram model over corpus
 def map_unigrams_corpus(xml_dir, top_words):
